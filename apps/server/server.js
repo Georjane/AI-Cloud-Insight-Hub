@@ -3,6 +3,8 @@ import multer from "multer";
 import cors from "cors";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import crypto from "crypto";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -13,9 +15,11 @@ app.use(cors());
 app.get("/", (req, res) => {
   res.status(200).send("Server is running 🚀");
 });
+console.log("AWS KEY LOADED:", !!process.env.AWS_ACCESS_KEY_ID);
 
-const s3 = new S3Client({ region: "eu-north-1" });
-
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+});
 app.post("/upload", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
@@ -26,7 +30,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     const fileName = `${crypto.randomUUID()}.${ext}`;
 
     const params = {
-      Bucket: "insighthub-bucket-jane",
+      Bucket: process.env.AWS_S3_BUCKET,
       Key: `uploads/${fileName}`,
       Body: req.file.buffer,
       ContentType: req.file.mimetype,
