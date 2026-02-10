@@ -22,6 +22,7 @@ function ImageUpload() {
       const data = await response.json();
 
       // backend should return { url: "https://s3-bucket-url/image.jpg" }
+      console.log(data)
       setImageUrl(data.url);
     } catch (error) {
       console.error("Upload failed", error);
